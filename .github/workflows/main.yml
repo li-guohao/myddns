@@ -20,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          ref: master
+          ref: develop
           persist-credentials: false
 
       - name: Set up QEMU
