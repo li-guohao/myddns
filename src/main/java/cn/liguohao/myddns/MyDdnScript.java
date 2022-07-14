@@ -1,5 +1,8 @@
 package cn.liguohao.myddns;
 
+import static cn.liguohao.myddns.EnvNameConstants.MY_DOMAIN;
+
+import com.aliyuncs.alidns.model.v20150109.DescribeSubDomainRecordsResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,6 +10,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +31,24 @@ public class MyDdnScript {
         Pattern.compile("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]");
     private static final List<String> IPV4_NET_OPEN_API_LIST = new ArrayList<>();
 
+    private static final String DOMAIN = System.getenv(MY_DOMAIN);
+    private static final String DEFAULT_DOMAIN = "liguohao.cn";
+    private static final String ROUTER_DOMAIN = "home.liguohao.cn";
+    private static final List<String> DOMAIN_PREFIX_LIST = new ArrayList<>();
+
+
     static {
         IPV4_NET_OPEN_API_LIST.add("http://checkip.amazonaws.com/");
         IPV4_NET_OPEN_API_LIST.add("https://ipv4.icanhazip.com/");
+
+        DOMAIN_PREFIX_LIST.add("router");
+        DOMAIN_PREFIX_LIST.add("media");
+        DOMAIN_PREFIX_LIST.add("webserver");
+        DOMAIN_PREFIX_LIST.add("blog");
+        DOMAIN_PREFIX_LIST.add("file");
+        DOMAIN_PREFIX_LIST.add("music");
+        DOMAIN_PREFIX_LIST.add("monitor");
+        DOMAIN_PREFIX_LIST.add("status");
     }
 
 
@@ -35,35 +57,55 @@ public class MyDdnScript {
         List<String> apiList = new ArrayList<>(IPV4_NET_OPEN_API_LIST.size());
         Collections.copy(IPV4_NET_OPEN_API_LIST, apiList);
 
-        initAndGetAliyunDnsClient();
-
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                List<String> ipv4ResultList = new ArrayList<>();
+                LOGGER.info("start exec schedule task");
 
-                for (String api : apiList) {
-                    try {
-                        String ipv4 = doGet(api);
-                        ipv4ResultList.add(ipv4);
-                        LOGGER.info("success get ipv4 [{}] by request url {}", ipv4, api);
-                    } catch (IOException e) {
-                        LOGGER.warn("fail request, url: " + api, e);
+                // 1. 由于路由器已经设置了二级域名，查询这个二级域名的解析是否存在，直接获取IP即可
+                Optional<DescribeSubDomainRecordsResponse.Record> recordOptional =
+                    IAcsClientKit.getSubDomainRecord(ROUTER_DOMAIN);
+
+                if (recordOptional.isPresent()) {
+                    // 更新(添加或者修改)其它子域名的记录
+                    for (String domainPrefix : DOMAIN_PREFIX_LIST) {
+                        String domain = Strings.isEmpty(DOMAIN) ? DEFAULT_DOMAIN : DOMAIN;
+                        IAcsClientKit.updateSubDomainRecord(domainPrefix, domain,
+                            recordOptional.get().getValue());
                     }
+
                 }
 
+                // 如果 上面的不行，再通过互联网接口，获取外网IP进行设置
+                // 如果上面的跑的没问题，下方的就不实现了
+//                List<String> ipv4ResultList = new ArrayList<>();
+//
+//                for (String api : apiList) {
+//                    try {
+//                        String ipv4 = doGet(api);
+//                        ipv4ResultList.add(ipv4);
+//                        LOGGER.info("success get ipv4 [{}] by request url {}", ipv4, api);
+//                    } catch (IOException e) {
+//                        LOGGER.warn("fail request, url: " + api, e);
+//                    }
+//                }
 
 
+                LOGGER.info("finish once exec schedule task");
             }
         };
 
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        scheduledExecutorService.scheduleAtFixedRate(runnable, 1, 15, TimeUnit.MINUTES);
+
+
+        LOGGER.info("ddns script has started.");
+        Thread.currentThread().join();
+
 
     }
 
-    private static void initAndGetAliyunDnsClient() throws Exception {
-
-    }
 
     private static String doGet(String url) throws IOException {
         if (url == null || "".equals(url) || !HTTP_PATTERN.matcher(url).matches()) {
