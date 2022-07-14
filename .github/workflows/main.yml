@@ -48,4 +48,3 @@ jobs:
           push: true
           tags: |
             liguohaocn/myddns:latest
-            liguohaocn/myddns:${{ steps.vars.outputs.tag }}
