@@ -37,12 +37,10 @@ public class MyDdnsScript {
 
     private static final String DOMAIN = Strings.isEmpty(MY_DOMAIN) ? DEFAULT_DOMAIN : MY_DOMAIN;
     private static final String HOME_DOMAIN = "home" + "." + DOMAIN;
-    private static final Map<String /* domainPrefix */, String /* remarks */> DOMAIN_PREFIX_MAP =
-        new HashMap<>();
-
-    private static String utf8Str(String orgStr) {
-        return new String(orgStr.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
-    }
+    /**
+     * key: domainPrefix    value: remarks
+     */
+    private static final Map<String, String > DOMAIN_PREFIX_MAP = new HashMap<>();
 
 
     static {
@@ -50,15 +48,15 @@ public class MyDdnsScript {
         IPV4_NET_OPEN_API_LIST.add("https://ipv4.icanhazip.com/");
 
         // 备注不支持中文
-        DOMAIN_PREFIX_MAP.put("router", utf8Str("OpenWrt"));
-        DOMAIN_PREFIX_MAP.put("media", utf8Str("Jellyfin"));
-        DOMAIN_PREFIX_MAP.put("webserver", utf8Str("NginxWebUI"));
-        DOMAIN_PREFIX_MAP.put("blog", utf8Str("Halo"));
-        DOMAIN_PREFIX_MAP.put("file", utf8Str("Cloudreve"));
-        DOMAIN_PREFIX_MAP.put("music", utf8Str("Navidrome"));
-        DOMAIN_PREFIX_MAP.put("monitor", utf8Str("Prometheus-Grafana"));
-        DOMAIN_PREFIX_MAP.put("status", utf8Str("Statping"));
-        DOMAIN_PREFIX_MAP.put("container", utf8Str("Portainer"));
+        DOMAIN_PREFIX_MAP.put("router", "OpenWrt");
+        DOMAIN_PREFIX_MAP.put("media", "Jellyfin");
+        DOMAIN_PREFIX_MAP.put("webserver", "NginxWebUI");
+        DOMAIN_PREFIX_MAP.put("blog", "Halo");
+        DOMAIN_PREFIX_MAP.put("file", "Cloudreve");
+        DOMAIN_PREFIX_MAP.put("music", "Navidrome");
+        DOMAIN_PREFIX_MAP.put("monitor", "Prometheus-Grafana");
+        DOMAIN_PREFIX_MAP.put("status", "Statping");
+        DOMAIN_PREFIX_MAP.put("container", "Portainer");
 
     }
 
