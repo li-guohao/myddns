@@ -112,7 +112,7 @@ public class IAcsClientKit {
 
     }
 
-    private static void addDomainRecord(String subDomainPrefix, String domain,
+    public static void addDomainRecord(String subDomainPrefix, String domain,
                                         String type, String newRecordValue) {
         AddDomainRecordRequest request = new AddDomainRecordRequest();
         request.setDomainName(domain);
@@ -121,8 +121,7 @@ public class IAcsClientKit {
         request.setValue(newRecordValue);
 
         try {
-            AddDomainRecordResponse response = getAliyunDnsClient().getAcsResponse(request);
-            System.out.println(new Gson().toJson(response));
+            getAliyunDnsClient().getAcsResponse(request);
         } catch (ServerException e) {
             e.printStackTrace();
             LOGGER.error("request fail, ", e);
@@ -134,7 +133,7 @@ public class IAcsClientKit {
         }
     }
 
-    private static UpdateDomainRecordResponse updateDomainRecord(String subDomainPrefix,
+    public static UpdateDomainRecordResponse updateDomainRecord(String subDomainPrefix,
                                                                  String newRecordValue,
                                                                  String type,
                                                                  String recordId) {
