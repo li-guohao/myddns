@@ -35,10 +35,10 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-#      - name: Gradle Build Action
-#        # You may pin to the exact commit or the version.
-#        # uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-#        uses: gradle/gradle-build-action@v2.2.1
+      - name: Gradle Build Action
+        # You may pin to the exact commit or the version.
+        # uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        uses: gradle/gradle-build-action@v2.2.1
 
       - name: Build image and push
         uses: docker/build-push-action@v2
