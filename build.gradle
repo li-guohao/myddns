@@ -3,8 +3,6 @@ plugins {
     id 'application'
 }
 
-group 'cn.liguohao'
-version '1.0-SNAPSHOT'
 
 application {
     mainClass = 'cn.liguohao.myddns.IAcsClientKit'

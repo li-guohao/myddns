@@ -34,7 +34,7 @@ jobs:
           ./gradlew clean build -x test
 
   path-context:
-    name: Build and Push Docker image to Docker Hub
+    name: docker image build and push to DockerHub
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
