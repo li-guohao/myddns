@@ -5,7 +5,7 @@ plugins {
 
 
 application {
-    mainClass = 'cn.liguohao.myddns.IAcsClientKit'
+    mainClass = 'cn.liguohao.myddns.MyDdnScript'
 }
 
 repositories {
