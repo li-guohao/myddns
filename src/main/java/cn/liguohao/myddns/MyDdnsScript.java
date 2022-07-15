@@ -58,6 +58,7 @@ public class MyDdnsScript {
         DOMAIN_PREFIX_MAP.put("prom", "Prometheus");
         DOMAIN_PREFIX_MAP.put("status", "Statping");
         DOMAIN_PREFIX_MAP.put("container", "Portainer");
+        DOMAIN_PREFIX_MAP.put("git", "Gitea");
 
     }
 
