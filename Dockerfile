@@ -1,6 +1,6 @@
 FROM eclipse-temurin:17-jre as builder
 MAINTAINER li-guohao
-ARG APPDIR=/app/myddns
+ENV APPDIR=/app/myddns
 WORKDIR $APPDIR
 CMD $APPDIR/gradlew clean distTar
 CMD tar -xvf $APPDIR/build/distributions/myddns-1.0-SNAPSHOT.tar $APPDIR/
