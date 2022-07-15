@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,20 +40,25 @@ public class MyDdnsScript {
     private static final Map<String /* domainPrefix */, String /* remarks */> DOMAIN_PREFIX_MAP =
         new HashMap<>();
 
+    private static String utf8Str(String orgStr) {
+        return new String(orgStr.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+    }
+
 
     static {
         IPV4_NET_OPEN_API_LIST.add("http://checkip.amazonaws.com/");
         IPV4_NET_OPEN_API_LIST.add("https://ipv4.icanhazip.com/");
 
-        DOMAIN_PREFIX_MAP.put("router", "路由-OpenWrt");
-        DOMAIN_PREFIX_MAP.put("media", "在线媒体-Jellyfin");
-        DOMAIN_PREFIX_MAP.put("webserver", "WEB服务器-NginxWebUI");
-        DOMAIN_PREFIX_MAP.put("blog", "博客小站-Halo");
-        DOMAIN_PREFIX_MAP.put("file", "个人云盘-Cloudreve");
-        DOMAIN_PREFIX_MAP.put("music", "在线音乐-Navidrome");
-        DOMAIN_PREFIX_MAP.put("monitor", "详情监控-Prometheus+Grafana");
-        DOMAIN_PREFIX_MAP.put("status", "简要监控-Statping");
-        DOMAIN_PREFIX_MAP.put("container", "容器管理-Portainer");
+        // 备注不支持中文
+        DOMAIN_PREFIX_MAP.put("router", utf8Str("OpenWrt"));
+        DOMAIN_PREFIX_MAP.put("media", utf8Str("Jellyfin"));
+        DOMAIN_PREFIX_MAP.put("webserver", utf8Str("NginxWebUI"));
+        DOMAIN_PREFIX_MAP.put("blog", utf8Str("Halo"));
+        DOMAIN_PREFIX_MAP.put("file", utf8Str("Cloudreve"));
+        DOMAIN_PREFIX_MAP.put("music", utf8Str("Navidrome"));
+        DOMAIN_PREFIX_MAP.put("monitor", utf8Str("Prometheus-Grafana"));
+        DOMAIN_PREFIX_MAP.put("status", utf8Str("Statping"));
+        DOMAIN_PREFIX_MAP.put("container", utf8Str("Portainer"));
 
     }
 
@@ -79,6 +85,8 @@ public class MyDdnsScript {
                             recordOptional.get().getValue(), entry.getValue());
                     }
 
+                } else {
+                    LOGGER.warn("unknown ipv4 record value with subdomain={}", HOME_DOMAIN);
                 }
 
                 // 如果 上面的不行，再通过互联网接口，获取外网IP进行设置
