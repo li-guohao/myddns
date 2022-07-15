@@ -7,6 +7,5 @@ RUN ["/bin/ls", "/mydns"]
 RUN ["/bin/mv", "/mydns/myddns-0.0.1", "/mydns/app"]
 RUN ["/bin/ls", "/mydns/app"]
 RUN ["/bin/chmod", "+x", "/mydns/app/bin/myddns"]
-RUN apk add --no-cache tini
-ENTRYPOINT ["/sbin/tini", "--", "/mydns/app/bin/myddns"]
+ENTRYPOINT ["/bin/bash", "-c", "/mydns/app/bin/myddns"]
 
