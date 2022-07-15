@@ -25,10 +25,6 @@ jobs:
         run: chmod +x ./gradlew
       - name: Build with Gradle
         run: |
-          # Set the version with tag name when releasing
-          version=${{ github.event.release.tag_name }}
-          version=${version#v}
-          sed -i "s/version=.*-SNAPSHOT$/version=$version/1" gradle.properties
           ./gradlew clean build -x test
 
       - name: Set up QEMU
