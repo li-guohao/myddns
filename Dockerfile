@@ -3,6 +3,6 @@ MAINTAINER li-guohao
 ARG TAR_FAILE=build/distributions/*.tar
 WORKDIR application
 ADD ${TAR_FAILE} application
-RUN ["chmod", "+x", "bin/myddns"]
-ENTRYPOINT bin/myddns
+RUN ["chmod", "+x", "${application}/bin/myddns"]
+ENTRYPOINT ${application}/bin/myddns
 
