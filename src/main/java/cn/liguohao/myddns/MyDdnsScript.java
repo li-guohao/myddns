@@ -54,7 +54,8 @@ public class MyDdnsScript {
         DOMAIN_PREFIX_MAP.put("blog", "Halo");
         DOMAIN_PREFIX_MAP.put("file", "Cloudreve");
         DOMAIN_PREFIX_MAP.put("music", "Navidrome");
-        DOMAIN_PREFIX_MAP.put("monitor", "Prometheus-Grafana");
+        DOMAIN_PREFIX_MAP.put("monitor", "Grafana");
+        DOMAIN_PREFIX_MAP.put("prom", "Prometheus");
         DOMAIN_PREFIX_MAP.put("status", "Statping");
         DOMAIN_PREFIX_MAP.put("container", "Portainer");
 
