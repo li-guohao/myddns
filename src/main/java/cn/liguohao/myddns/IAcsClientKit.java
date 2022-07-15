@@ -7,8 +7,12 @@ import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.IAcsClient;
 import com.aliyuncs.alidns.model.v20150109.AddDomainRecordRequest;
 import com.aliyuncs.alidns.model.v20150109.AddDomainRecordResponse;
+import com.aliyuncs.alidns.model.v20150109.DescribeDomainRecordInfoRequest;
+import com.aliyuncs.alidns.model.v20150109.DescribeDomainRecordInfoResponse;
 import com.aliyuncs.alidns.model.v20150109.DescribeSubDomainRecordsRequest;
 import com.aliyuncs.alidns.model.v20150109.DescribeSubDomainRecordsResponse;
+import com.aliyuncs.alidns.model.v20150109.UpdateDomainRecordRemarkRequest;
+import com.aliyuncs.alidns.model.v20150109.UpdateDomainRecordRemarkResponse;
 import com.aliyuncs.alidns.model.v20150109.UpdateDomainRecordRequest;
 import com.aliyuncs.alidns.model.v20150109.UpdateDomainRecordResponse;
 import com.aliyuncs.exceptions.ClientException;
@@ -85,43 +89,74 @@ public class IAcsClientKit {
                                              String newRecordValue) {
         Assert.isNotBlank(subDomainPrefix, domain, newRecordValue);
 
+        updateSubDomainRecord(subDomainPrefix, domain, newRecordValue, null);
+    }
+
+    public static void updateSubDomainRecord(String subDomainPrefix, String domain,
+                                             String newRecordValue, String remarks) {
+        Assert.isNotBlank(subDomainPrefix, domain, newRecordValue);
+
         String subDomain = subDomainPrefix + "." + domain;
 
         Optional<DescribeSubDomainRecordsResponse.Record> recordOptional =
             getSubDomainRecord(subDomain);
 
+        String recordId = null;
+
         if (recordOptional.isPresent()) {
-            if (!newRecordValue.equals(recordOptional.get().getValue())) {
+            DescribeSubDomainRecordsResponse.Record record = recordOptional.get();
+            if (!newRecordValue.equals(record.getValue())) {
                 // 修改原有的解析记录
-                updateDomainRecord(subDomainPrefix, newRecordValue, "A",
-                    recordOptional.get().getRecordId());
+                Optional<UpdateDomainRecordResponse> updateDomainRecordResponseOptional =
+                    updateDomainRecord(subDomainPrefix, newRecordValue, "A",
+                        record.getRecordId());
                 LOGGER.info("update subdomain={}, newValue={}, oldValue={}", subDomain,
                     newRecordValue,
-                    recordOptional.get().getValue());
+                    record.getValue());
+
+                if(updateDomainRecordResponseOptional.isPresent()) {
+                    recordId = updateDomainRecordResponseOptional.get().getRecordId();
+                }
+
+                updateRemarkExist(remarks, recordId);
             } else {
-                LOGGER.info("do not update, because of it has same record value, subdomain={}, newValue={}, oldValue={}", subDomain,
-                    newRecordValue,
-                    recordOptional.get().getValue());
+                LOGGER.info(
+                    "do not update, because of it has same record value, subdomain={}, newValue={}, oldValue={}",
+                    subDomain, newRecordValue, record.getValue());
             }
         } else {
             // 新增解析记录
-            addDomainRecord(subDomainPrefix, domain, "A", newRecordValue);
+            Optional<AddDomainRecordResponse> addDomainRecordResponseOptional =
+                addDomainRecord(subDomainPrefix, domain, "A", newRecordValue);
             LOGGER.info("add subdomain={}, recordValue={}", subDomain, newRecordValue);
+
+            if(addDomainRecordResponseOptional.isPresent()) {
+                recordId = addDomainRecordResponseOptional.get().getRecordId();
+            }
+
+            updateRemarkExist(remarks, recordId);
         }
+
 
 
     }
 
-    public static void addDomainRecord(String subDomainPrefix, String domain,
-                                        String type, String newRecordValue) {
-        AddDomainRecordRequest request = new AddDomainRecordRequest();
-        request.setDomainName(domain);
-        request.setRR(subDomainPrefix);
-        request.setType(type);
-        request.setValue(newRecordValue);
+    private static void updateRemarkExist(String remarks, String recordId) {
+        // 经过上面的操作后，域名记录一定是存在的，如果传入的备注不为空，更新备注
+        if(remarks != null && !"".equals(remarks)) {
+            updateDomainRecordRemarks(recordId, remarks);
+        }
+    }
+
+    private static Optional<UpdateDomainRecordRemarkResponse> updateDomainRecordRemarks(String recordId, String remarks) {
+        Assert.isNotBlank(recordId, remarks);
+
+        UpdateDomainRecordRemarkRequest request = new UpdateDomainRecordRemarkRequest();
+        request.setRecordId(recordId);
+        request.setRemark(remarks);
 
         try {
-            getAliyunDnsClient().getAcsResponse(request);
+            return Optional.of(getAliyunDnsClient().getAcsResponse(request));
         } catch (ServerException e) {
             e.printStackTrace();
             LOGGER.error("request fail, ", e);
@@ -131,12 +166,36 @@ public class IAcsClientKit {
 
             LOGGER.error("request fail, rsp info is " + sb + ". and exception: ", e);
         }
+        return Optional.empty();
     }
 
-    public static UpdateDomainRecordResponse updateDomainRecord(String subDomainPrefix,
-                                                                 String newRecordValue,
-                                                                 String type,
-                                                                 String recordId) {
+    public static Optional<AddDomainRecordResponse> addDomainRecord(String subDomainPrefix, String domain,
+                                       String type, String newRecordValue) {
+        AddDomainRecordRequest request = new AddDomainRecordRequest();
+        request.setDomainName(domain);
+        request.setRR(subDomainPrefix);
+        request.setType(type);
+        request.setValue(newRecordValue);
+
+        try {
+            AddDomainRecordResponse acsResponse = getAliyunDnsClient().getAcsResponse(request);
+            return Optional.of(acsResponse);
+        } catch (ServerException e) {
+            e.printStackTrace();
+            LOGGER.error("request fail, ", e);
+        } catch (ClientException e) {
+            String sb = "ErrCode:" + e.getErrCode() + "ErrMsg:" +
+                e.getErrMsg() + "RequestId:" + e.getRequestId();
+
+            LOGGER.error("request fail, rsp info is " + sb + ". and exception: ", e);
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<UpdateDomainRecordResponse> updateDomainRecord(String subDomainPrefix,
+                                                                String newRecordValue,
+                                                                String type,
+                                                                String recordId) {
         Assert.isNotBlank(subDomainPrefix, newRecordValue, type, recordId);
 
         UpdateDomainRecordRequest request = new UpdateDomainRecordRequest();
@@ -146,7 +205,7 @@ public class IAcsClientKit {
         request.setValue(newRecordValue);
 
         try {
-            return getAliyunDnsClient().getAcsResponse(request);
+            return Optional.of(getAliyunDnsClient().getAcsResponse(request));
         } catch (ServerException e) {
             e.printStackTrace();
             LOGGER.error("request fail, ", e);
@@ -156,7 +215,7 @@ public class IAcsClientKit {
 
             LOGGER.error("request fail, rsp info is " + sb + ". and exception: ", e);
         }
-        return null;
+        return Optional.empty();
     }
 
 }
