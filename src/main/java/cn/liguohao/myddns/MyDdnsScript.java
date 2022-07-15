@@ -68,13 +68,7 @@ public class MyDdnsScript {
         List<String> apiList = new ArrayList<>(IPV4_NET_OPEN_API_LIST.size());
         Collections.copy(IPV4_NET_OPEN_API_LIST, apiList);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            LOGGER.info("start clear subdomain record before app shutdown.");
-            for (String subDomainPrefix : DOMAIN_PREFIX_MAP.keySet()) {
-                IAcsClientKit.deleteDomainARecord(subDomainPrefix, DOMAIN);
-            }
-            LOGGER.info("finish clear subdomain record before app shutdown.");
-        }));
+
 
 
         Runnable runnable = new Runnable() {
@@ -121,6 +115,20 @@ public class MyDdnsScript {
 
 
         LOGGER.info("ddns script has started.");
+
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOGGER.info("start shutdown scheduledExecutorService...");
+            scheduledExecutorService.shutdownNow();
+            LOGGER.info("finish shutdown scheduledExecutorService.");
+
+            LOGGER.info("start clear subdomain record before app shutdown.");
+            for (String subDomainPrefix : DOMAIN_PREFIX_MAP.keySet()) {
+                IAcsClientKit.deleteDomainARecord(subDomainPrefix, DOMAIN);
+            }
+            LOGGER.info("finish clear subdomain record before app shutdown.");
+        }));
+
         Thread.currentThread().join();
 
 
