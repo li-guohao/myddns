@@ -25,6 +25,8 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
           java-version: 17
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
       - name: Build with Gradle
         run: |
           # Set the version with tag name when releasing
