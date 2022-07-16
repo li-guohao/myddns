@@ -59,6 +59,7 @@ public class MyDdnsScript {
         DOMAIN_PREFIX_MAP.put("status", "Statping");
         DOMAIN_PREFIX_MAP.put("container", "Portainer");
         DOMAIN_PREFIX_MAP.put("git", "Gitea");
+        DOMAIN_PREFIX_MAP.put("nas", "QnapNas");
 
     }
 
