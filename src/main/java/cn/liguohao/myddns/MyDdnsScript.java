@@ -62,6 +62,7 @@ public class MyDdnsScript {
         DOMAIN_PREFIX_MAP.put("nas", "QnapNas");
         DOMAIN_PREFIX_MAP.put("@", "Home Page");
         DOMAIN_PREFIX_MAP.put("www", "Home Page");
+        DOMAIN_PREFIX_MAP.put("ci", "Drone");
 
     }
 
