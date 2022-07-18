@@ -51,7 +51,6 @@ public class MyDdnsScript {
         DOMAIN_PREFIX_MAP.put("router", "OpenWrt");
         DOMAIN_PREFIX_MAP.put("media", "Jellyfin");
         DOMAIN_PREFIX_MAP.put("webserver", "NginxWebUI");
-        DOMAIN_PREFIX_MAP.put("blog", "Halo");
         DOMAIN_PREFIX_MAP.put("file", "Cloudreve");
         DOMAIN_PREFIX_MAP.put("music", "Navidrome");
         DOMAIN_PREFIX_MAP.put("monitor", "Grafana");
