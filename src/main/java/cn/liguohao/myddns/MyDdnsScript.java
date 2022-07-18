@@ -60,8 +60,6 @@ public class MyDdnsScript {
         DOMAIN_PREFIX_MAP.put("container", "Portainer");
         DOMAIN_PREFIX_MAP.put("git", "Gitea");
         DOMAIN_PREFIX_MAP.put("nas", "QnapNas");
-        DOMAIN_PREFIX_MAP.put("@", "HomePage");
-        DOMAIN_PREFIX_MAP.put("www", "HomePage");
         DOMAIN_PREFIX_MAP.put("ci", "Jenkins");
 
     }
